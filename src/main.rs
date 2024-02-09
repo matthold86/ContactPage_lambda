@@ -2,9 +2,10 @@ use aws_sdk_dynamodb::{Client};
 use aws_sdk_dynamodb::types::AttributeValue;
 use lambda_http::{run, service_fn, Body, Error, Request, Response};
 use serde::{Deserialize, Serialize};
-//use serde_dynamo::to_attribute_value;
 use tracing::info;
 use chrono::Utc;
+use std::convert::TryFrom;
+use http::Request as HttpRequest;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Item {
@@ -69,10 +70,28 @@ async fn main() -> Result<(), Error> {
     //Create the DynamoDB client.
     let client = Client::new(&config);
 
-    run(service_fn(|event: Request| async {
-        handle_request(&client, event).await
-    }))
-    .await
+    // run(service_fn(|event: Request| async {
+    //     handle_request(&client, event).await
+    // }))
+    // .await
+
+        // Hardcoded test event
+    let request = HttpRequest::builder()
+        .method("POST")
+        .header("Content-Type", "application/json")
+        .uri("/test/path")
+        .body(Body::from("{\"name\": \"SpongeBob\", \"email\": \"pineapple@sea.com\", \"message\": \"Will this message deliver?\"}"))
+        .expect("Failed to build request");
+
+    // Convert http::Request to lambda_http::Request
+    let lambda_request = Request::try_from(request).expect("Failed to convert to lambda_http::Request");
+
+    // Use the hardcoded test event instead of processing incoming events
+    let response = handle_request(&client, lambda_request).await?;
+    println!("Response: {:?}", response);
+
+    Ok(())
+    
 }
 
 // Add an item to a table.
