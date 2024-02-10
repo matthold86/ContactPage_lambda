@@ -4,8 +4,8 @@ use lambda_http::{run, service_fn, Body, Error, Request, Response};
 use serde::{Deserialize, Serialize};
 use tracing::info;
 use chrono::Utc;
-use std::convert::TryFrom;
-use http::Request as HttpRequest;
+//use std::convert::TryFrom;
+//use http::Request as HttpRequest;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Item {
@@ -19,6 +19,19 @@ pub struct Item {
 /// You can see more examples in Runtime's repository:
 /// - https://github.com/awslabs/aws-lambda-rust-runtime/tree/main/examples
 async fn handle_request(db_client: &Client, event: Request) -> Result<Response<Body>, Error> {
+
+    // Check if the incoming request is a preflight OPTIONS request
+    if event.method() == "OPTIONS" {
+        // Return a response with CORS headers for OPTIONS request
+        return Ok(Response::builder()
+            .status(200)
+            .header("Content-Type", "application/json")
+            .header("Access-Control-Allow-Origin", "*") // Specify allowed origin(s) here, or use "*" for open access
+            .header("Access-Control-Allow-Methods", "POST, GET, OPTIONS") // Specify allowed methods here
+            .header("Access-Control-Allow-Headers", "Content-Type, X-Amz-Date, Authorization, X-Api-Key") // Specify allowed headers here
+            .body("CORS preflight response".into())?);
+    }
+    
     // Extract some useful information from the request
     let body = event.body();
     let s = std::str::from_utf8(body).expect("invalid utf-8 sequence");
@@ -70,24 +83,25 @@ async fn main() -> Result<(), Error> {
     //Create the DynamoDB client.
     let client = Client::new(&config);
 
-    // run(service_fn(|event: Request| async {
-    //     handle_request(&client, event).await
-    // }))
-    // .await
+    let response = run(service_fn(|event: Request| async {
+        handle_request(&client, event).await
+    }))
+    .await;
 
-        // Hardcoded test event
-    let request = HttpRequest::builder()
-        .method("POST")
-        .header("Content-Type", "application/json")
-        .uri("/test/path")
-        .body(Body::from("{\"name\": \"SpongeBob\", \"email\": \"pineapple@sea.com\", \"message\": \"Will this message deliver?\"}"))
-        .expect("Failed to build request");
+    //     // Hardcoded test event
+    // let request = HttpRequest::builder()
+    //     .method("POST")
+    //     .header("Content-Type", "application/json")
+    //     .uri("/test/path")
+    //     .body(Body::from("{\"name\": \"Plankton\", \"email\": \"chum@bucket.com\", \"message\": \"New deployment.\"}"))
+    //     .expect("Failed to build request");
 
-    // Convert http::Request to lambda_http::Request
-    let lambda_request = Request::try_from(request).expect("Failed to convert to lambda_http::Request");
+    // // Convert http::Request to lambda_http::Request
+    // let lambda_request = Request::try_from(request).expect("Failed to convert to lambda_http::Request");
 
-    // Use the hardcoded test event instead of processing incoming events
-    let response = handle_request(&client, lambda_request).await?;
+    // // Use the hardcoded test event instead of processing incoming events
+    // let response = handle_request(&client, lambda_request).await?;
+
     println!("Response: {:?}", response);
 
     Ok(())
