@@ -38,7 +38,7 @@ If the data insertion is successful, DynamoDB will send a response confirming th
 
 ## Why Rust
 
-Rust is an efficient language for handling form data. Rust is able to create complex datastructures in the form of *structs* that when paired with pattern matching and the `serde` package, makes for efficient deserialization of JSON data. Rust's default variable immutability also ensures an added level of data security for handling user data.
+Rust is an efficient language for handling form data. Rust is able to model complex datastructures stored as custom *structs* that when paired with pattern matching and the `serde` package, makes for efficient deserialization of JSON data. Rust's default variable immutability also ensures an added level of data security for handling user data.
 
 Rust also has series of cargo subcommands called `cargo-lambda` that aids in deploying AWS Lambda functions written in Rust. The main advantage of using `cargo-lambda` is that it abstracts away many of the manual steps and complexities involved in cross compilation to ensure the local function is packaged into a binary compatible with AWS Lambda environment. Using the `cargo-lambda` subcommands with the `AWS CLI` makes for very efficient development and deployment of AWS lambda functions.
 
