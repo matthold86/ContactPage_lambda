@@ -52,7 +52,7 @@ As stated earlier, the browser will intercept your http request and abide by the
 
 However... if the request is abnormal in any way - perhaps a DELETE request, CONNECT request, or a POST request compiled in a JS Event handler with custom headers - the browser won't send a request with the original method, it will send an *OPTIONS* request to your API and wait for the response. The response has to clarify which origins, methods, and headers are accepted for CORS. If the OPTIONS method is not explicitely handled within the API, the browser will default to blocking the request. My handling of the OPTIONS request can be seen in the `main.rs` file, `function_handler` function.
 
-#### Choose your compiler wisely
+#### Incompatable C Compiler
 
 ```
   cargo:rerun-if-env-changed=RING_PREGENERATE_ASM
@@ -64,9 +64,11 @@ However... if the request is abnormal in any way - perhaps a DELETE request, CON
   error: failed to run custom build command for `ring v0.17.7`
 ```
 
+During the build process, I encountered issues with the `ring` crate due to C compiler configuration issues. My local environment was configured to use the Visual Studio MSVC compiler, but this C compiler was not compatible with the `ring v0.17.7` crate. I ended up downloading the MinGW-w64 runtime and reconfiguring my local environment to use the GCC compiler (supported by the MinGW-w64 runtime).
+
 #### Spaces and Dashes in File Path
 
-If you get this error when building, you have spaces or dashes in your file path.
+Also during the build process I encountered this issue which had very little documentation online. I found out the source of the error was a dash (-) and space ( ) upstream of my project directory path. Rookie mistake.
 
 ```
   = note: error: Unknown Clang option: '-\'
@@ -82,12 +84,12 @@ failed: exit code: 1
 
 [GitHub Issue #10881: zig cc can fail with extremely long argument list](https://github.com/ziglang/zig/issues/10881)
 
-The creator of cargo lambda, [calavera](https://github.com/ziglang/zig/issues/10881#issuecomment-1100571469), acknowledged this issue and there doesn't appear to be a solution for Windows.
+This error was encountered on my local environment where it appears the argument list was too long and the build process would fail at the same point on every attempt. I tried to reduce the size of my cargo .lock file, but the process would still reach a maximum argument size. The creator of cargo lambda, [calavera](https://github.com/ziglang/zig/issues/10881#issuecomment-1100571469), acknowledged this issue and there doesn't appear to be a solution for Windows.
 
 I moved my repository in to Github Codespaces and was able to build and deploy from Codespaces.
 
 
 #### Future Work
 
-
+I would like to continue experimenting with http requests and web application interfaces. For my next project, I'd like to build a simple image uploading interface that deposits an image into an S3 database and triggers a lambda function to extract the metadata. There are many ways to accomplish this task and I'd like to compare the client-side delay time of a few different methods. 
 
