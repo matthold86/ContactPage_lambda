@@ -4,7 +4,7 @@
 
 This project builds on my personal website and adds customized functionality to the form submission process on my *Contact Me* page. When the website was first built, the messages submitted through my website were processed using the free form processer FormSpree. FormSpree is exceptionally easy to integrate into an html form, but the data processing structure is predefined and inflexible to integrating with other services. In an attempt to learn more about processing data through web applications, I decided to replace the FormSpree functionality with a custom pipeline built with AWS lambda and DynamoDB. With the new data pipeline, the form data is sent as an http POST request to an AWS lambda function, where the JSON data is deserialized and uploaded to a DynamoDB database. 
 
-Below is a link to the Contact Page if you would like to test it the client-side UI.
+Below is a link to the Contact Page if you would like to test the client-side UI.
 
 [Personal Website Contact Page](https://zolawebsite-mjh140-84221a449a6f2f4baac19b4d09c0cf8992f2fddab7c3.gitlab.io/contact/)
 
